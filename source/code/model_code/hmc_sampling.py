@@ -6,7 +6,7 @@ import numpy as np
 
 
 @njit
-def _dH_by_dh_i(
+def _dham_by_dh_i(
         h_set: np.ndarray,
         y_set: np.ndarray,
         phi: float,
@@ -14,27 +14,60 @@ def _dH_by_dh_i(
         eta_var: float
 ) -> np.ndarray:
 
-    # First wrap the h_set in our boundary condition for h (=0)
-    h_set_valid_boundary = np.append(np.append([0.0], h_set), [0.0])
-    h_1_kron_handler_set = np.zeros_like(h_set)
-    h_1_kron_handler_set[1] = 1.
-    h_1 = h_set[0]
-
-    dH_by_dh_i_set = np.add(
+    h_set_extended = np.pad(h_set, 1)
+    first_ele_kron_handler = np.zeros_like(h_set)
+    final_ele_kron_handler = np.zeros_like(h_set)
+    first_ele_kron_handler[0] = 1
+    final_ele_kron_handler[-1] = 1
+    one_arr = np.ones_like(first_ele_kron_handler)
+    dham_by_dh_i = np.add(
         np.add(
-            0.5 * (1. - np.multiply(np.square(y_set), np.exp(h_set))),
-            np.multiply(
-                h_1_kron_handler_set,
-                (h_1 - mu) / (eta_var / (1 - phi*phi))
-            )
+            0.5 * (1. - np.multiply(np.square(y_set), np.exp(-1. * h_set))),
+            first_ele_kron_handler * ((h_set[0] - mu)/(eta_var/(1.-(phi*phi))))
         ),
-        (1 / eta_var) * np.add(
-            h_set * (1 + phi*phi),
-            -1. * phi * (h_set_valid_boundary[:-2] + h_set_valid_boundary[2:]) - 1. * mu * (phi - 1) * (phi - 1)
+        (1/eta_var) * (
+            np.add(
+                np.multiply(
+                    np.add(
+                        h_set - mu,
+                        -phi*(h_set_extended[0:-2] - mu)
+                    ),
+                    one_arr - first_ele_kron_handler
+                ),
+                np.multiply(
+                    -phi*np.add(
+                        h_set_extended[2:] - mu,
+                        -phi*(h_set - mu)
+                    ),
+                    one_arr - final_ele_kron_handler
+                )
+            )
         )
     )
 
-    return dH_by_dh_i_set
+    return dham_by_dh_i
+
+    # First wrap the h_set in our boundary condition for h (=0)
+    # h_set_valid_boundary = np.append(np.append([0.0], h_set), [0.0])
+    # h_1_kron_handler_set = np.zeros_like(h_set)
+    # h_1_kron_handler_set[1] = 1.
+    # h_1 = h_set[0]
+    #
+    # dham_by_dh_i_set = np.add(
+    #     np.add(
+    #         0.5 * (1. - np.multiply(np.square(y_set), np.exp(h_set))),
+    #         np.multiply(
+    #             h_1_kron_handler_set,
+    #             (h_1 - mu) / (eta_var / (1 - phi*phi))
+    #         )
+    #     ),
+    #     (1 / eta_var) * np.add(
+    #         h_set * (1 + phi*phi),
+    #         -1. * phi * (h_set_valid_boundary[:-2] + h_set_valid_boundary[2:]) - 1. * mu * (phi - 1) * (phi - 1)
+    #     )
+    # )
+
+    return dham_by_dh_i_set
 
 
 @njit
@@ -58,7 +91,7 @@ def _p_full_step(
 ) -> np.ndarray:
     return np.subtract(
         p_set_old,
-        dt * _dH_by_dh_i(h_set_old, y_set, phi, mu, eta_var)
+        dt * _dham_by_dh_i(h_set_old, y_set, phi, mu, eta_var)
     )
 
 
