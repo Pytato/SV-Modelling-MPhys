@@ -67,8 +67,6 @@ def _dham_by_dh_i(
     #     )
     # )
 
-    return dham_by_dh_i_set
-
 
 @njit
 def _h_half_step(
