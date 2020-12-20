@@ -47,26 +47,6 @@ def _dham_by_dh_i(
 
     return dham_by_dh_i
 
-    # First wrap the h_set in our boundary condition for h (=0)
-    # h_set_valid_boundary = np.append(np.append([0.0], h_set), [0.0])
-    # h_1_kron_handler_set = np.zeros_like(h_set)
-    # h_1_kron_handler_set[1] = 1.
-    # h_1 = h_set[0]
-    #
-    # dham_by_dh_i_set = np.add(
-    #     np.add(
-    #         0.5 * (1. - np.multiply(np.square(y_set), np.exp(h_set))),
-    #         np.multiply(
-    #             h_1_kron_handler_set,
-    #             (h_1 - mu) / (eta_var / (1 - phi*phi))
-    #         )
-    #     ),
-    #     (1 / eta_var) * np.add(
-    #         h_set * (1 + phi*phi),
-    #         -1. * phi * (h_set_valid_boundary[:-2] + h_set_valid_boundary[2:]) - 1. * mu * (phi - 1) * (phi - 1)
-    #     )
-    # )
-
 
 @njit
 def _h_half_step(
