@@ -71,12 +71,8 @@ def test_eta_var_inv_gamma():
     mu_set = [0.0]
 
     for i in tqdm(range(len(historical_h_t))):
-        new_phi, new_eta_var, new_mu = param_sampling.iter_samp_param(
-            historical_h_t,
-            phi_set[-1],
-            eta_var_set[-1],
-            mu_set[-1]
-        )
+        new_phi, new_eta_var, new_mu = param_sampling.iter_samp_param(historical_h_t, phi_set[-1],
+                                                                      mu_set[-1], eta_var_set[-1])
         phi_set.append(new_phi)
         eta_var_set.append(new_eta_var)
         mu_set.append(new_mu)
@@ -157,12 +153,8 @@ def dummy_h_dist_tests():
     eta_var_set = [0.08]
     mu_set = [0.4]
     for i in tqdm(range(2000000)):
-        new_phi, new_eta_var, new_mu = param_sampling.iter_samp_param(
-            h_t_test_data,
-            phi_set[-1],
-            eta_var_set[-1],
-            mu_set[-1]
-        )
+        new_phi, new_eta_var, new_mu = param_sampling.iter_samp_param(h_t_test_data, phi_set[-1],
+                                                                      mu_set[-1], eta_var_set[-1])
         phi_set.append(new_phi)
         eta_var_set.append(new_eta_var)
         mu_set.append(new_mu)

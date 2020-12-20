@@ -87,8 +87,8 @@ def phi_sample(
 def iter_samp_param(
         old_h_set: np.ndarray,
         old_phi: float,
-        old_var_eta: float,
         old_mu: float,
+        old_var_eta: float
 ) -> (float, float, float):
     """"""
 
@@ -96,7 +96,7 @@ def iter_samp_param(
     new_var_eta = var_eta_sample(old_h_set, old_phi, old_mu)
     new_mu = mu_sample(old_h_set, old_var_eta, old_phi)
 
-    return new_phi, new_var_eta, new_mu
+    return new_phi, new_mu, new_var_eta
 
 
 if __name__ == "__main__":

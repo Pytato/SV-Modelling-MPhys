@@ -5,6 +5,26 @@ from numba import njit
 import numpy as np
 
 
+def hamiltonian(
+        h_set: np.ndarray,
+        p_set: np.ndarray,
+        y_set: np.ndarray,
+        phi: float,
+        mu: float,
+        eta_var: float
+) -> float:
+
+    ham_first_ele = 1/2 * np.sum(np.square(p_set))
+    ham_second_ele = 1/2 * np.sum(np.add(h_set, np.multiply(np.square(y_set), np.exp(-1 * h_set))))
+    ham_third_ele = ((h_set[0] - mu)**2)/(2*eta_var/(1 - phi*phi))
+    ham_fourth_ele = (1/(2.*eta_var))*np.sum(
+        np.square(
+            np.add(h_set[1:] - mu, -phi*(h_set[:-1] - mu))
+        )
+    )
+    return ham_first_ele + ham_second_ele + ham_third_ele + ham_fourth_ele
+
+
 @njit
 def _dham_by_dh_i(
         h_set: np.ndarray,
@@ -84,35 +104,41 @@ def _integration_full_step(
         phi: float,
         mu: float,
         eta_var: float
-) -> (np.ndarray, np.ndarray):
+) -> [np.ndarray, np.ndarray]:
     p_full_step_set = _p_full_step(p_set_old, h_set_old, dt, y_set, phi, mu, eta_var)
-    return (np.add(
+    return [np.add(
         _h_half_step(h_set_old, p_set_old, dt),
         (dt / 2) * p_full_step_set
-    ), p_full_step_set)
+    ), p_full_step_set]
 
 
+@njit
 def integrate_trajectory(
-        p_initial: np.ndarray,
         h_initial: np.ndarray,
+        p_initial: np.ndarray,
         integration_length: float,
         n_steps: int,
         y_set: np.ndarray,
         phi_initial: float,
         mu_initial: float,
         var_eta_initial: float
-) -> (np.ndarray, (float, float, float)):
+) -> [np.ndarray, np.ndarray]:
 
     dt = integration_length/n_steps
     h_set = h_initial
     p_set = p_initial
-    phi_val = phi_initial
-    mu_val = mu_initial
-    var_eta_val = var_eta_initial
 
-    for i in tqdm(range(n_steps)):
-        h_set, p_set = _integration_full_step(p_set, h_set, dt, y_set, phi_val, mu_val, var_eta_val)
-        phi_val, var_eta_val, mu_val = iter_samp_param(h_set, phi_val, var_eta_val, mu_val)
+    for i in range(n_steps):
+        h_set, p_set = _integration_full_step(
+            p_initial,
+            h_initial,
+            dt,
+            y_set,
+            phi_initial,
+            mu_initial,
+            var_eta_initial
+        )
 
-    return h_set, (phi_val, mu_val, var_eta_val)
+    # phi_val, var_eta_val, mu_val = iter_samp_param(h_set, phi_val, var_eta_val, mu_val)
 
+    return [h_set, p_set]
