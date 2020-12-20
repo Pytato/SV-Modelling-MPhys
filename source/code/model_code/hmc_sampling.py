@@ -14,7 +14,9 @@ def _dham_by_dh_i(
         eta_var: float
 ) -> np.ndarray:
 
-    h_set_extended = np.pad(h_set, 1)
+    # h_set_extended = np.pad(h_set, 1)
+    h_set_extended = np.zeros(len(h_set)+2)
+    h_set_extended[1:-1] = h_set
     first_ele_kron_handler = np.zeros_like(h_set)
     final_ele_kron_handler = np.zeros_like(h_set)
     first_ele_kron_handler[0] = 1
