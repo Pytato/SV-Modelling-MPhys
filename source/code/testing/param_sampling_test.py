@@ -53,7 +53,24 @@ def sample_params(y_t_data_loc, phi_init, mu_init, var_eta_init, n_trajectories)
     # print("Hamiltonian List:", hamiltonian_arr)
 
 
+def integrator_reverse_test(y_t_data_loc):
+    h_loc = np.ones_like(y_t_data_loc)/2
+    phi_init, mu_init, eta_var_init = 0.5, 0.0, 1.0
+    p_loc = np.random.normal(0, 1, len(y_t_data_loc))
+    print(h_loc)
+    # print("Hamiltonian initial:",
+    #       hamiltonian(h_loc, p_loc, y_t_data_loc, phi_init, mu_init, eta_var_init))
+    h_cand_out, p_cand_out = integrate_trajectory(h_loc, p_loc, 1., 1000, y_t_data_loc, phi_init,
+                                                  mu_init, eta_var_init)
+    print(h_cand_out)
+    h_reverse_test, p_reverse_test = integrate_trajectory(h_cand_out, -p_cand_out, 1., 1000,
+                                                          y_t_data_loc, phi_init, mu_init,
+                                                          eta_var_init)
+    print(h_reverse_test)
+
+
 if __name__ == "__main__":
     eta_var, mu, phi = 0.05, -1.0, 0.97
     y_t_data, h_t_data = generate_test_y_t_data(eta_var, mu, phi)
-    sample_params(y_t_data[100000:101000], 0.5, 0.0, 1.0, 100)
+    integrator_reverse_test(y_t_data[100000:101000])
+    # sample_params(y_t_data[100000:101000], 0.5, 0.0, 1.0, 100)
