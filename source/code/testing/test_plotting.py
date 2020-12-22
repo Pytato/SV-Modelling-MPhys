@@ -197,4 +197,3 @@ if __name__ == "__main__":
     # test_eta_var_inv_gamma()
     # dummy_h_dist_tests()
     test_dists_arb()
-    pass
