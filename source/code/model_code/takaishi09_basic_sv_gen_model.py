@@ -103,13 +103,13 @@ def gen_y_t_vals(eta_variance, mu, phi, num_steps_to_gen=1000):
     :rtype: np.ndarray(np.double)
     """
 
-    epsilon_t_set = gen_epsilon_value_set(n_to_gen=num_steps_to_gen + 1)
+    epsilon_t_set = gen_epsilon_value_set(n_to_gen=num_steps_to_gen)
     eta_t_set = gen_eta_t_values(eta_variance, n_to_gen=num_steps_to_gen)
     h_1 = 0.0
     h_val_set = gen_h_t_set(h_1, mu, phi, eta_t_set)
     y_val_set = np.multiply(np.exp(h_val_set/2.0), epsilon_t_set)
 
-    return y_val_set
+    return y_val_set, h_val_set
 
 
 if __name__ == "__main__":
