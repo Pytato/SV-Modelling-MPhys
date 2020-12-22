@@ -6,20 +6,21 @@ import os
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import optimize as sci_opt
+from scipy import stats as sci_stats
 
 from tqdm import tqdm
 
 from matplotlib import rc
 
+plt.style.use(["science", "ieee"])
 
-rc('font', **{
-    'family': 'serif',
-    'serif': ['Computer Modern'],
-    'size': '11',
-})
-rc('text', usetex=True)
-rc('figure', **{'autolayout': True})
+# rc('font', **{
+#     'family': 'serif',
+#     'serif': ['Computer Modern'],
+#     'size': '11',
+# })
+# rc('text', usetex=True)
+# rc('figure', **{'autolayout': True})
 
 
 def generate_test_y_t_data(eta_var_l, mu_l, phi_l):
@@ -88,8 +89,6 @@ def stepsize_delta_ham_test(y_t_data_loc):
     p_loc = np.random.normal(0, 1, len(y_t_data_loc))
     old_ham = hamiltonian(h_loc, p_loc, y_t_data_loc, phi_init, mu_init, eta_var_init)
     trajectory_length = 1.
-    # n_step_list = np.linspace(10, 1000, 1000)
-    # step_length_list = np.logspace(-3, -1, 1000)
     step_length_list = np.linspace(0.0001, 0.1, 5000)
     n_step_list = np.around(trajectory_length/step_length_list)
     new_hams = []
@@ -100,8 +99,11 @@ def stepsize_delta_ham_test(y_t_data_loc):
                                     eta_var_init))
 
     ham_delta_list = np.subtract(new_hams, old_ham)
+    eps_square_list = np.square(np.divide(trajectory_length, n_step_list))
+    rel_grad, rel_intercept, _, _, _ = sci_stats.linregress(eps_square_list, ham_delta_list)
     fig, ax = plt.subplots()
-    ax.plot(np.square(np.divide(trajectory_length, n_step_list)), ham_delta_list, color="0.3")
+    ax.plot(eps_square_list, ham_delta_list, color="0.3")
+    ax.plot(eps_square_list, [eps_sq*rel_grad + rel_intercept for eps_sq in eps_square_list])
     ax.set(xlabel=r"$\varepsilon^2$", ylabel=r"$\Delta H$")
     fig.suptitle("HMC Stepsize-Error Relation")
     fig.savefig("./plotout/stepsize_ham_delta.pdf")
