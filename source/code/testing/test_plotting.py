@@ -116,7 +116,7 @@ def make_standard_hist(
                                 align="mid")
     if over_plot_data is not None:
         for overplot_domain, overplot_vals, name in over_plot_data:
-            ax.plot(overplot_domain, overplot_vals, linewidth=0.5, label=name)
+            ax.plot(overplot_domain, overplot_vals, linewidth=0.5)  # , label=name)
         ax.legend()
     ax.set(xlabel=x_lab, ylabel=y_lab)
     fig.suptitle(title)
