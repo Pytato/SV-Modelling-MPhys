@@ -10,7 +10,7 @@ from scipy import stats as sci_stats
 
 from tqdm import tqdm
 
-from matplotlib import rc
+# from matplotlib import rc
 
 plt.style.use(["science", "ieee"])
 
@@ -100,11 +100,16 @@ def stepsize_delta_ham_test(y_t_data_loc):
 
     ham_delta_list = np.subtract(new_hams, old_ham)
     eps_square_list = np.square(np.divide(trajectory_length, n_step_list))
-    rel_grad, rel_intercept, _, _, _ = sci_stats.linregress(eps_square_list, ham_delta_list)
+    rel_grad, rel_intercept, r_val, _, std_err = sci_stats.linregress(eps_square_list,
+                                                                      ham_delta_list)
     fig, ax = plt.subplots()
-    ax.plot(eps_square_list, ham_delta_list, color="0.3")
-    ax.plot(eps_square_list, [eps_sq*rel_grad + rel_intercept for eps_sq in eps_square_list])
+    # ax.plot(eps_square_list, ham_delta_list, color="0.3")
+    ax.plot(eps_square_list, [eps_sq*rel_grad + rel_intercept for eps_sq in eps_square_list],
+            label=f"Least Squares Fitted Slope, \n"
+                  f"$a={rel_grad:.2f}\\pm {std_err:.1g}$, $b={rel_intercept:.1g}$, \n"
+                  f"$r={r_val:.2f}$")
     ax.set(xlabel=r"$\varepsilon^2$", ylabel=r"$\Delta H$")
+    ax.legend()
     fig.suptitle("HMC Stepsize-Error Relation")
     fig.savefig("./plotout/stepsize_ham_delta.pdf")
 
