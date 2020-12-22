@@ -9,16 +9,18 @@ import scipy.stats as scistats
 import csv
 
 from tqdm import tqdm
-from matplotlib import rc
 
-
-rc('font', **{
-    'family': 'serif',
-    'serif': ['Computer Modern'],
-    'size': '10',
-})
-rc('text', usetex=True)
-rc('figure', **{'autolayout': True})
+# from matplotlib import rc
+#
+#
+# rc('font', **{
+#     'family': 'serif',
+#     'serif': ['Computer Modern'],
+#     'size': '10',
+# })
+# rc('text', usetex=True)
+# rc('figure', **{'autolayout': True})
+plt.style.use(["science", "ieee"])
 
 
 def test_dists_arb():
@@ -26,7 +28,7 @@ def test_dists_arb():
     B_VAL = 2.0
     C_VAL = 5.0
     D_VAL = 1
-    E_VAL = 0.0
+    E_VAL = 0.5
     N_VAL = 100
     VAR_ETA_VAL = 0.5
 
@@ -38,21 +40,25 @@ def test_dists_arb():
 
     for i in tqdm(range(sample_count)):
         phi_set.append(arb_dist_model.phi_sample(phi_set[-1], D_VAL, E_VAL, VAR_ETA_VAL))
-    make_standard_hist(phi_set[1000:], "phi_sample_dist_plot_arb", title=r"$\varphi$ Sample Distribution", n_bins=100,
-                       x_lab=r"$\varphi$", y_lab="Normalised Frequency",
-                       over_plot_data=[standard_gaussian(phi_set[1000:])])
+    make_standard_hist(phi_set[5000:], "phi_sample_dist_plot_arb",
+                       title=r"$\varphi$ Sample Distribution", n_bins=100,
+                       x_lab=r"$\varphi$", y_lab="Normalised Frequency")  # ,
+    # over_plot_data=[standard_gaussian(phi_set[1000:])])
 
     for i in tqdm(range(sample_count)):
         mu_set.append(arb_dist_model.mu_sample(B_VAL, C_VAL, VAR_ETA_VAL))
-    make_standard_hist(mu_set[1000:], "mu_sample_dist_plot_arb", title=r"$\mu$ Sample Distribution", n_bins=100,
+    make_standard_hist(mu_set[5000:], "mu_sample_dist_plot_arb", title=r"$\mu$ Sample Distribution",
+                       n_bins=100,
                        x_lab=r"$\mu$", y_lab="Normalised Frequency",
                        over_plot_data=[standard_gaussian(mu_set[1000:])])
 
     for i in tqdm(range(1000000)):
         eta_var_set.append(arb_dist_model.eta_var_sample(A_VAL, N_VAL))
-    make_standard_hist(eta_var_set[100:], "eta_var_sample_dist_plot_arb",
-                       title=r"$\sigma^2_\eta$ Sample Distribution", n_bins=100, x_lab=r"$\sigma^2_\eta$",
-                       y_lab="Normalised Frequency", over_plot_data=[inv_gamma_fit(eta_var_set[100:])])
+    make_standard_hist(eta_var_set[5000:], "eta_var_sample_dist_plot_arb",
+                       title=r"$\sigma^2_\eta$ Sample Distribution", n_bins=100,
+                       x_lab=r"$\sigma^2_\eta$",
+                       y_lab="Normalised Frequency",
+                       over_plot_data=[inv_gamma_fit(eta_var_set[100:])])
 
 
 def test_eta_var_inv_gamma():
@@ -84,7 +90,7 @@ mu: {mu_set[-1]:.4}.
 """)
 
     fig, ax = plt.subplots()
-    ax.plot(range(1, len(phi_set)+1), phi_set)
+    ax.plot(range(1, len(phi_set) + 1), phi_set)
     ax.set_ylim(0.90, 1)
     fig.savefig("./plotout/test_phi_sample_plot.png", dpi=300)
     # print(param_sampling.rejections)
@@ -106,7 +112,8 @@ def make_standard_hist(
         over_plot_data=None
 ):
     fig, ax = plt.subplots()
-    bin_freq, bins, _ = ax.hist(distributed_variable_set, n_bins, density=True, color="0.3", align="mid")
+    bin_freq, bins, _ = ax.hist(distributed_variable_set, n_bins, density=True, color="0.3",
+                                align="mid")
     if over_plot_data is not None:
         for overplot_domain, overplot_vals, name in over_plot_data:
             ax.plot(overplot_domain, overplot_vals, linewidth=0.5, label=name)
@@ -125,7 +132,8 @@ def standard_gaussian(
     min_domain_val = min(distributed_variable_set)
     max_domain_val = max(distributed_variable_set)
     domain = np.linspace(min_domain_val, max_domain_val, num=1000)
-    return [domain, np.exp(-np.square(domain - data_set_mean)/(2*data_set_var))/np.sqrt(2*np.pi*data_set_var),
+    return [domain, np.exp(-np.square(domain - data_set_mean) / (2 * data_set_var)) / np.sqrt(
+        2 * np.pi * data_set_var),
             f"Fitted Gaussian: \n$\\mu={data_set_mean:.4}$, $\\sigma^2={data_set_var:.2}$"]
 
 
@@ -147,7 +155,7 @@ def dummy_h_dist_tests():
     PHI = 0.97
     # eta_t_set = sv_gen_model.gen_eta_t_values(ETA_T_VAR, n_to_gen=100000)
     # h_t_test_data = sv_gen_model.gen_h_t_set(INITIAL_H, MU, PHI, eta_t_set)[80000:90000]
-    h_t_test_data = np.random.uniform(size=5000)*4.0 - 1.0
+    h_t_test_data = np.random.uniform(size=5000) * 4.0 - 1.0
     # h_t_test_data = np.genfromtxt("./Single_run.csv", delimiter=",")[80000:90000]
     phi_set = [0.8]
     eta_var_set = [0.08]
@@ -161,22 +169,28 @@ def dummy_h_dist_tests():
 
     with open("./newrun_out.csv", "w") as csv_out:
         writer = csv.writer(csv_out, delimiter=",")
-        writer.writerows([[phi_set[i], eta_var_set[i], mu_set[i]] for i in tqdm(range(len(phi_set)))])
+        writer.writerows(
+            [[phi_set[i], eta_var_set[i], mu_set[i]] for i in tqdm(range(len(phi_set)))])
 
     # print(param_sampling.phi_rejects)
     # print(param_sampling.phi_samples)
     # print(param_sampling.phi_rejects/param_sampling.phi_samples)
 
-    make_standard_hist(phi_set[100:], "phi_sample_dist_plot3", title=r"$\varphi$ Sample Distribution", n_bins=100,
-                       x_lab=r"$\varphi$", y_lab="Count", over_plot_data=[standard_gaussian(phi_set[100:])])
+    make_standard_hist(phi_set[100:], "phi_sample_dist_plot3",
+                       title=r"$\varphi$ Sample Distribution", n_bins=100,
+                       x_lab=r"$\varphi$", y_lab="Count",
+                       over_plot_data=[standard_gaussian(phi_set[100:])])
 
     make_standard_hist(eta_var_set[100:], "eta_var_sample_dist_plot3",
-                       title=r"$\sigma^2_\eta$ Sample Distribution", n_bins=100, x_lab=r"$\sigma^2_\eta$",
+                       title=r"$\sigma^2_\eta$ Sample Distribution", n_bins=100,
+                       x_lab=r"$\sigma^2_\eta$",
                        y_lab="Count", over_plot_data=[inv_gamma_fit(eta_var_set[100:]),
                                                       standard_gaussian(eta_var_set[100:])])
 
-    make_standard_hist(mu_set[100:], "mu_sample_dist_plot3", title=r"$\mu$ Sample Distribution", n_bins=100,
-                       x_lab=r"$\mu$", y_lab="Count", over_plot_data=[standard_gaussian(mu_set[100:])])
+    make_standard_hist(mu_set[100:], "mu_sample_dist_plot3", title=r"$\mu$ Sample Distribution",
+                       n_bins=100,
+                       x_lab=r"$\mu$", y_lab="Count",
+                       over_plot_data=[standard_gaussian(mu_set[100:])])
 
 
 if __name__ == "__main__":
