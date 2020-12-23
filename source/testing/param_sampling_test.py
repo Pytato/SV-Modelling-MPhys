@@ -25,7 +25,7 @@ plt.style.use(["science", "ieee"])
 
 
 def generate_test_y_t_data(eta_var_l, mu_l, phi_l):
-    DATA_FILE_LOC = "../code/testing/y_t_model_data_output.npy"
+    DATA_FILE_LOC = "./y_t_model_data_output.npy"
     if os.path.exists(DATA_FILE_LOC):
         temp = np.load(DATA_FILE_LOC)
         return temp
@@ -126,7 +126,7 @@ def full_implementation_test(y_t_series, phi_init, mu_init, var_eta_init, n_traj
     for _ in tqdm(range(n_trajectories)):
         h_out, (phi_curr, mu_curr, var_eta_curr), attempts_made = mcmc_fullstep_handler.step_mcmc(
             h_out, y_t_series, phi_curr, mu_curr, var_eta_curr, max_attempts=max_attempts,
-            n_steps=50
+            n_steps=60
         )
         attempts_made_on_trajec.append(attempts_made)
         if attempts_made == max_attempts:
@@ -137,17 +137,38 @@ def full_implementation_test(y_t_series, phi_init, mu_init, var_eta_init, n_traj
         h_set_set.append(h_out)
 
     print("phi", phi_curr, "\nmu", mu_curr, "\nvar[eta]", var_eta_curr)
-    fig, ax = plt.subplots()
-    ax.plot(np.arange(1, len(h_out)+1), h_out, linewidth=0.25)
-    ax.set(xlabel=r"$t$", ylabel=f"$h^{{{len(h_set_set)}}}_t$")
-    fig.suptitle(f"HMC Inferred $h^{{{len(h_set_set)}}}_t$")
-    fig.savefig("./plotout/hmc_full_test.pdf")
+    print("Average trajectory attempts:", np.mean(attempts_made_on_trajec))
+    fig1, ax1 = plt.subplots()
+    ax1.plot(np.arange(1, len(h_out)+1), h_out, linewidth=0.25)
+    ax1.set(xlabel=r"$t$", ylabel=f"$h^{{{len(h_set_set)-1}}}_t$")
+    fig1.suptitle(f"HMC Inferred $h^{{{len(h_set_set)-1}}}_t$")
 
-    fig, ax = plt.subplots()
-    ax.plot(np.arange(1, len(attempts_made_on_trajec)+1), attempts_made_on_trajec)
-    ax.set(xlabel=r"$\tau$", ylabel=f"Failed Trajectories")
-    fig.suptitle(f"HMC Failed Trajectories Over MCMC History")
-    fig.savefig("./plotout/hmc_failed_trajects.pdf")
+    failed_traject_fig, failed_traject_ax = plt.subplots()
+    failed_traject_ax.plot(np.arange(1, len(attempts_made_on_trajec)+1),
+                           np.subtract(attempts_made_on_trajec, 1), linewidth=0.25)
+    failed_traject_ax.set(xlabel=r"$\tau$", ylabel=f"Failed Trajectories")
+    failed_traject_fig.suptitle(f"HMC Failed Trajectories Over MCMC History")
+
+    phi_history_fig, phi_history_ax = plt.subplots()
+    phi_history_ax.plot(np.arange(1, len(phi_set)+1), phi_set)
+    phi_history_ax.set(xlabel=r"$\tau$", ylabel=f"\\varphi")
+    phi_history_fig.suptitle(r"\varphi MC History")
+
+    mu_history_fig, mu_history_ax = plt.subplots()
+    mu_history_ax.plot(np.arange(1, len(mu_set)+1), mu_set)
+    mu_history_ax.set(xlabel=r"$\tau$", ylabel=f"\\mu")
+    mu_history_fig.suptitle(r"\mu MC History")
+
+    var_eta_history_fig, var_eta_history_ax = plt.subplots()
+    var_eta_history_ax.plot(np.arange(1, len(mu_set)+1), var_eta_set)
+    var_eta_history_ax.set(xlabel=r"$\tau$", ylabel=f"\\sigma_\\eta^2")
+    var_eta_history_fig.suptitle(r"\sigma_\eta^2")
+
+    fig1.savefig("./plotout/hmc_full_test.pdf")
+    failed_traject_fig.savefig("./plotout/hmc_failed_trajects.pdf")
+    phi_history_fig.savefig("./plotout/phi_history.pdf")
+    mu_history_fig.savefig("./plotout/mu_history.pdf")
+    var_eta_history_fig.savefig("./plotout/var_eta_history.pdf")
 
 
 if __name__ == "__main__":
@@ -156,4 +177,4 @@ if __name__ == "__main__":
     # integrator_reverse_test(y_t_data[100000:101000])
     # sample_params(y_t_data[100000:102000], 0.5, 0.0, 1.0, 100)
     # stepsize_delta_ham_test(y_t_data[100000:101000])
-    full_implementation_test(y_t_data[150000:155000], 0.5, 0, 1, 10000)
+    full_implementation_test(y_t_data[150000:152000], 0.5, 0, 1, 50000)
