@@ -1,6 +1,7 @@
 from source.model_code.takaishi09_basic_sv_gen_model import gen_y_t_vals
 from source.model_code.hmc_sampling import integrate_trajectory, hamiltonian
 from source.model_code.mcmc_param_sampling import iter_samp_param
+from source.model_code import mcmc_fullstep_handler
 
 import os
 import math
@@ -114,9 +115,45 @@ def stepsize_delta_ham_test(y_t_data_loc):
     fig.savefig("./plotout/stepsize_ham_delta.pdf")
 
 
+def full_implementation_test(y_t_series, phi_init, mu_init, var_eta_init, n_trajectories):
+    h_zero = np.random.normal(0, 1, len(y_t_series))
+    phi_curr, mu_curr, var_eta_curr = phi_init, mu_init, var_eta_init
+    h_out = h_zero
+    phi_set, mu_set, var_eta_set = [phi_curr], [mu_curr], [var_eta_curr]
+    h_set_set = [h_zero]
+    attempts_made_on_trajec = []
+    max_attempts = 200
+    for _ in tqdm(range(n_trajectories)):
+        h_out, (phi_curr, mu_curr, var_eta_curr), attempts_made = mcmc_fullstep_handler.step_mcmc(
+            h_out, y_t_series, phi_curr, mu_curr, var_eta_curr, max_attempts=max_attempts,
+            n_steps=50
+        )
+        attempts_made_on_trajec.append(attempts_made)
+        if attempts_made == max_attempts:
+            break
+        phi_set.append(phi_curr)
+        mu_set.append(mu_curr)
+        var_eta_set.append(var_eta_curr)
+        h_set_set.append(h_out)
+
+    print("phi", phi_curr, "\nmu", mu_curr, "\nvar[eta]", var_eta_curr)
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(1, len(h_out)+1), h_out, linewidth=0.25)
+    ax.set(xlabel=r"$t$", ylabel=f"$h^{{{len(h_set_set)}}}_t$")
+    fig.suptitle(f"HMC Inferred $h^{{{len(h_set_set)}}}_t$")
+    fig.savefig("./plotout/hmc_full_test.pdf")
+
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(1, len(attempts_made_on_trajec)+1), attempts_made_on_trajec)
+    ax.set(xlabel=r"$\tau$", ylabel=f"Failed Trajectories")
+    fig.suptitle(f"HMC Failed Trajectories Over MCMC History")
+    fig.savefig("./plotout/hmc_failed_trajects.pdf")
+
+
 if __name__ == "__main__":
     eta_var, mu, phi = 0.05, -1.0, 0.97
     y_t_data, h_t_data = generate_test_y_t_data(eta_var, mu, phi)
     # integrator_reverse_test(y_t_data[100000:101000])
     # sample_params(y_t_data[100000:102000], 0.5, 0.0, 1.0, 100)
     # stepsize_delta_ham_test(y_t_data[100000:101000])
+    full_implementation_test(y_t_data[150000:155000], 0.5, 0, 1, 10000)

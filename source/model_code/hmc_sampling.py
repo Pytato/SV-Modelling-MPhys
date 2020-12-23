@@ -2,6 +2,7 @@ from numba import njit
 import numpy as np
 
 
+@njit
 def hamiltonian(
         h_set: np.ndarray,
         p_set: np.ndarray,
