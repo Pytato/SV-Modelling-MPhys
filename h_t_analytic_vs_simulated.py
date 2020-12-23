@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rc
 
-from source.code.analytic_funcs import analytic_funcs
-from source.code.model_code import takaishi09_basic_sv_gen_model
+from source.analytic_funcs import analytic_funcs
+from source.model_code import takaishi09_basic_sv_gen_model
 
 plt.tight_layout()
 

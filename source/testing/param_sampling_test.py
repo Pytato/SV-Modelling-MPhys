@@ -1,6 +1,6 @@
-from source.code.model_code.takaishi09_basic_sv_gen_model import gen_y_t_vals
-from source.code.model_code.hmc_sampling import integrate_trajectory, hamiltonian
-from source.code.model_code.mcmc_param_sampling import iter_samp_param
+from source.model_code.takaishi09_basic_sv_gen_model import gen_y_t_vals
+from source.model_code.hmc_sampling import integrate_trajectory, hamiltonian
+from source.model_code.mcmc_param_sampling import iter_samp_param
 
 import os
 import math
@@ -24,7 +24,7 @@ plt.style.use(["science", "ieee"])
 
 
 def generate_test_y_t_data(eta_var_l, mu_l, phi_l):
-    DATA_FILE_LOC = "./y_t_model_data_output.npy"
+    DATA_FILE_LOC = "../code/testing/y_t_model_data_output.npy"
     if os.path.exists(DATA_FILE_LOC):
         temp = np.load(DATA_FILE_LOC)
         return temp
@@ -119,4 +119,4 @@ if __name__ == "__main__":
     y_t_data, h_t_data = generate_test_y_t_data(eta_var, mu, phi)
     # integrator_reverse_test(y_t_data[100000:101000])
     # sample_params(y_t_data[100000:102000], 0.5, 0.0, 1.0, 100)
-    stepsize_delta_ham_test(y_t_data[100000:101000])
+    # stepsize_delta_ham_test(y_t_data[100000:101000])

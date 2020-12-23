@@ -1,6 +1,3 @@
-from source.code.model_code.mcmc_param_sampling import *
-
-from tqdm import tqdm
 from numba import njit
 import numpy as np
 
@@ -138,7 +135,5 @@ def integrate_trajectory(
             mu_initial,
             var_eta_initial
         )
-
-    # phi_val, var_eta_val, mu_val = iter_samp_param(h_set, phi_val, var_eta_val, mu_val)
 
     return [h_set, p_set]

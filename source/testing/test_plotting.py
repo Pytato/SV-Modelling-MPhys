@@ -1,6 +1,6 @@
-from source.code.model_code import mcmc_param_sampling as param_sampling
-from source.code.model_code import takaishi09_basic_sv_gen_model as sv_gen_model
-from source.code.testing import mcmc_param_sampler_arb_dists as arb_dist_model
+from source.model_code import mcmc_param_sampling as param_sampling
+from source.model_code import takaishi09_basic_sv_gen_model as sv_gen_model
+from source.testing import mcmc_param_sampler_arb_dists as arb_dist_model
 
 import matplotlib.pyplot as plt
 import numpy as np

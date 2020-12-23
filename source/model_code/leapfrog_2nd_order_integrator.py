@@ -1,5 +1,3 @@
-from source.code.model_code import hmc_sampling, mcmc_param_sampling
-
 import numpy as np
 from numba import njit
 from tqdm import tqdm
@@ -39,7 +37,7 @@ def integrate_trajectory(x_initial, p_initial, dham_by_dx_func, path_length, n_s
     x_set = x_initial
     p_set = p_initial
 
-    for i in tqdm(range(n_steps)):
+    for _ in tqdm(range(n_steps)):
         x_half_step_set = x_half_step(x_set, p_set, dt)
         p_set = p_step(p_set, dham_by_dx_func, dt, *ham_args)
         x_set = x_full_step(x_half_step_set, p_set, dt)

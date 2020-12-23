@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import rc
-from source.code.model_code import takaishi09_basic_sv_gen_model
+from source.model_code import takaishi09_basic_sv_gen_model
 
 plt.tight_layout()
 
@@ -38,7 +38,7 @@ fig, ax = plt.subplots()
 fig.suptitle("Plot of $h_t$ Data: $\\mu=-1,\\, \\varphi=0.97,\\, \\sigma^2_{\\eta}=0.05,\\, h_1=0$.")
 ax.plot(t_set, takaishi09_basic_sv_gen_model.gen_h_t_set(
     TRIAL_VALUES["h_1"], TRIAL_VALUES["mu"], TRIAL_VALUES["phi"],
-    takaishi09_basic_sv_gen_model.gen_eta_t_values(TRIAL_VALUES["eta_variance"], n_to_gen=len(t_set)-1)),
+    takaishi09_basic_sv_gen_model.gen_eta_t_values(TRIAL_VALUES["eta_variance"], n_to_gen=len(t_set) - 1)),
         color="0.3", linewidth=0.4)
 ax.set(xlabel=r"Time, $t$", ylabel=r"$h_t$")
 fig.savefig("./plotout/h-t_data_gen_test_plot.pdf")
