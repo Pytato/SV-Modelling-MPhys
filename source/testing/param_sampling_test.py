@@ -150,19 +150,19 @@ def full_implementation_test(y_t_series, phi_init, mu_init, var_eta_init, n_traj
     failed_traject_fig.suptitle(f"HMC Failed Trajectories Over MCMC History")
 
     phi_history_fig, phi_history_ax = plt.subplots()
-    phi_history_ax.plot(np.arange(1, len(phi_set)+1), phi_set)
-    phi_history_ax.set(xlabel=r"$\tau$", ylabel=f"\\varphi")
-    phi_history_fig.suptitle(r"\varphi MC History")
+    phi_history_ax.plot(np.arange(1, len(phi_set)+1), phi_set, linewidth=0.25)
+    phi_history_ax.set(xlabel=r"$\tau$", ylabel=f"$\\varphi$")
+    phi_history_fig.suptitle(r"$\varphi$ MC History")
 
     mu_history_fig, mu_history_ax = plt.subplots()
-    mu_history_ax.plot(np.arange(1, len(mu_set)+1), mu_set)
-    mu_history_ax.set(xlabel=r"$\tau$", ylabel=f"\\mu")
-    mu_history_fig.suptitle(r"\mu MC History")
+    mu_history_ax.plot(np.arange(1, len(mu_set)+1), mu_set, linewidth=0.25)
+    mu_history_ax.set(xlabel=r"$\tau$", ylabel=f"$\\mu$")
+    mu_history_fig.suptitle(r"$\mu$ MC History")
 
     var_eta_history_fig, var_eta_history_ax = plt.subplots()
-    var_eta_history_ax.plot(np.arange(1, len(mu_set)+1), var_eta_set)
-    var_eta_history_ax.set(xlabel=r"$\tau$", ylabel=f"\\sigma_\\eta^2")
-    var_eta_history_fig.suptitle(r"\sigma_\eta^2")
+    var_eta_history_ax.plot(np.arange(1, len(mu_set)+1), var_eta_set, linewidth=0.25)
+    var_eta_history_ax.set(xlabel=r"$\tau$", ylabel=f"$\\sigma_\\eta^2$")
+    var_eta_history_fig.suptitle(r"$\sigma_\eta^2$")
 
     fig1.savefig("./plotout/hmc_full_test.pdf")
     failed_traject_fig.savefig("./plotout/hmc_failed_trajects.pdf")
