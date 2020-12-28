@@ -126,7 +126,7 @@ def full_implementation_test(y_t_series, phi_init, mu_init, var_eta_init, n_traj
     for _ in tqdm(range(n_trajectories)):
         h_out, (phi_curr, mu_curr, var_eta_curr), attempts_made = mcmc_fullstep_handler.step_mcmc(
             h_out, y_t_series, phi_curr, mu_curr, var_eta_curr, max_attempts=max_attempts,
-            n_steps=75
+            n_steps=90
         )
         attempts_made_on_trajec.append(attempts_made)
         if attempts_made == max_attempts:
@@ -177,4 +177,4 @@ if __name__ == "__main__":
     # integrator_reverse_test(y_t_data[100000:101000])
     # sample_params(y_t_data[100000:102000], 0.5, 0.0, 1.0, 100)
     # stepsize_delta_ham_test(y_t_data[100000:101000])
-    full_implementation_test(y_t_data[150000:152000], 0.5, 0, 1, 100000)
+    full_implementation_test(y_t_data[150000:152000], 0.5, 0, 1, 250000)
