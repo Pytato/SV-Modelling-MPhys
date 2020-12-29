@@ -95,8 +95,8 @@ def _p_full_step(
 
 @njit
 def _integration_full_step(
-        p_set_old: np.ndarray,
         h_set_old: np.ndarray,
+        p_set_old: np.ndarray,
         dt: float,
         y_set: np.ndarray,
         phi: float,
@@ -123,13 +123,13 @@ def integrate_trajectory(
 ) -> [np.ndarray, np.ndarray]:
 
     dt = integration_length/n_steps
-    h_set = h_initial
-    p_set = p_initial
+
+    h_set, p_set = h_initial, p_initial
 
     for i in range(n_steps):
         h_set, p_set = _integration_full_step(
-            p_initial,
-            h_initial,
+            h_set,
+            p_set,
             dt,
             y_set,
             phi_initial,
