@@ -23,19 +23,22 @@ def __x_step(
         dt: float
 ) -> np.ndarray:
     """Constitutes an integrator step in x-space, call with half
-    the usual step length to produce half-steps
+    the usual step length to produce half-steps.
     """
     return np.add(x_set_old, dt*p_set_new)
 
 
 def full_trajectory_int(
-        p_initial: np.ndarray,
         x_initial: np.ndarray,
+        p_initial: np.ndarray,
         force_func: Callable,
         dt: float,
         n_steps: int,
         *force_args
 ) -> [np.ndarray, np.ndarray]:
+    """Integrates a full trajectory by 2nd order leapfrog, preserves
+    volume and is reversible.
+    """
 
     # Initial half step in p to align the integrator correctly
     p_curr = __p_step(p_initial, x_initial, force_func, dt/2, *force_args)
