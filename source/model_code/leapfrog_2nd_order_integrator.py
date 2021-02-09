@@ -1,3 +1,11 @@
+"""
+Sources:
+[1] S. Duane, A. D. Kennedy, B. J. Pendleton, and D. Roweth, ‘Hybrid Monte Carlo’,
+    Physics Letters B, vol. 195, no. 2, pp. 216–222, Sep. 1987,
+    doi: 10.1016/0370-2693(87)91197-X.
+
+"""
+
 from typing import Callable
 
 import numpy as np
@@ -38,6 +46,8 @@ def full_trajectory_int(
 ) -> [np.ndarray, np.ndarray]:
     """Integrates a full trajectory by 2nd order leapfrog, preserves
     volume and is reversible.
+
+    Based on [1].
     """
 
     # Initial half step in p to align the integrator correctly
