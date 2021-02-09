@@ -1,45 +1,53 @@
+from typing import Callable
+
 import numpy as np
 from numba import njit
-from tqdm import tqdm
 
 
-@njit
-def x_half_step(x_old, p_old, dt):
-    return np.add(x_old, (dt/2) * p_old)
+def __p_step(
+        p_set_old: np.ndarray,
+        x_set_old: np.ndarray,
+        force_func: Callable,
+        dt: float,
+        *force_args
+) -> np.ndarray:
+    """Constitutes an integrator step in p-space, call with half
+    the usual step length to produce half-steps.
+    """
+    return np.subtract(p_set_old, dt*force_func(x_set_old, *force_args))
 
 
-@njit
-def p_step(p_old, dham_by_dx, dt, *ham_args):
-    return np.subtract(p_old, dt * dham_by_dx(*ham_args))
+def __x_step(
+        p_set_new: np.ndarray,
+        x_set_old: np.ndarray,
+        dt: float
+) -> np.ndarray:
+    """Constitutes an integrator step in x-space, call with half
+    the usual step length to produce half-steps
+    """
+    return np.add(x_set_old, dt*p_set_new)
 
 
-@njit
-def x_full_step(x_half_step_results, p_step_results, dt):
-    return np.add(x_half_step_results, (dt/2) * p_step_results)
+def full_trajectory_int(
+        p_initial: np.ndarray,
+        x_initial: np.ndarray,
+        force_func: Callable,
+        dt: float,
+        n_steps: int,
+        *force_args
+) -> [np.ndarray, np.ndarray]:
 
+    # Initial half step in p to align the integrator correctly
+    p_curr = __p_step(p_initial, x_initial, force_func, dt/2, *force_args)
+    # Initial full step in x to account for the loop running n-1
+    x_curr = __x_step(p_curr, x_initial, dt)
 
-@njit
-def integrate_trajectory_jit(x_initial, p_initial, dham_by_dx_func, path_length, n_steps, *ham_args):
-    dt = path_length/n_steps
-    x_set = x_initial
-    p_set = p_initial
+    # Loop for n-1 full steps
+    for i in range(n_steps-1):
+        p_curr = __p_step(p_curr, x_curr, force_func, dt, *force_args)
+        x_curr = __x_step(p_curr, x_curr, dt)
 
-    for i in range(n_steps):
-        x_half_step_set = x_half_step(x_set, p_set, dt)
-        p_set = p_step(p_set, dham_by_dx_func, dt, *ham_args)
-        x_set = x_full_step(x_half_step_set, p_set, dt)
+    # Final half step in p to re-align p-space and validate Hamiltonian
+    p_curr = __p_step(p_curr, x_curr, force_func, dt/2, *force_args)
 
-    return x_set, p_set
-
-
-def integrate_trajectory(x_initial, p_initial, dham_by_dx_func, path_length, n_steps, *ham_args):
-    dt = path_length/n_steps
-    x_set = x_initial
-    p_set = p_initial
-
-    for _ in tqdm(range(n_steps)):
-        x_half_step_set = x_half_step(x_set, p_set, dt)
-        p_set = p_step(p_set, dham_by_dx_func, dt, *ham_args)
-        x_set = x_full_step(x_half_step_set, p_set, dt)
-
-    return x_set, p_set
+    return [x_curr, p_curr]
