@@ -1,11 +1,10 @@
 from source.model_code import leapfrog_2nd_order_integrator
-from source.model_code import hmc_sampling
+from source.model_code import system_equations
 from source.model_code import ideal_test_code
-from source.testing import param_sampling_test
+from source.utility_code.testing_utils import y_t_data_management
 
 import numpy as np
 import matplotlib.pyplot as plt
-# from copy import deepcopy
 
 from scipy import stats as scistats
 
@@ -22,7 +21,7 @@ def reversibility_test(y_data_loc):
     x_traject_end_f, p_traject_end_f = leapfrog_2nd_order_integrator.full_trajectory_int(
         x_set_in,
         p_set_in,
-        hmc_sampling.dham_by_dh_i,
+        system_equations.dham_by_dh_i,
         dt,
         N_STEPS,
         y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT
@@ -47,7 +46,7 @@ def reversibility_test(y_data_loc):
     x_traject_start_f, p_traject_start_f = leapfrog_2nd_order_integrator.full_trajectory_int(
         x_traject_end_f,
         p_traject_end_f,
-        hmc_sampling.dham_by_dh_i,
+        system_equations.dham_by_dh_i,
         dt,
         N_STEPS,
         y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT
@@ -80,7 +79,7 @@ def area_preservation_test(y_data_loc):
             leapfrog_2nd_order_integrator.full_trajectory_int(
                 x_set_in,
                 p_set_in,
-                hmc_sampling.dham_by_dh_i,
+                system_equations.dham_by_dh_i,
                 step_lengths[i],
                 n_steps[i],
                 y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT
@@ -88,11 +87,11 @@ def area_preservation_test(y_data_loc):
         )
     step_squared_domain = np.square(step_lengths)
     output_hamiltonians = [
-        hmc_sampling.hamiltonian(h_set, p_set, y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT)
+        system_equations.hamiltonian(h_set, p_set, y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT)
         for h_set, p_set in output_tuples
     ]
     hamiltonian_errors = np.abs(np.subtract(
-        hmc_sampling.hamiltonian(x_set_in, p_set_in, y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT),
+        system_equations.hamiltonian(x_set_in, p_set_in, y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT),
         output_hamiltonians
     ))
     result = scistats.linregress(step_squared_domain, hamiltonian_errors)
@@ -107,6 +106,6 @@ def area_preservation_test(y_data_loc):
 
 if __name__ == "__main__":
     eta_var, mu, phi = 0.05, -1.0, 0.97
-    y_t_data, h_t_data = param_sampling_test.generate_test_y_t_data(eta_var, mu, phi)
+    y_t_data, h_t_data = y_t_data_management.generate_test_y_t_data(eta_var, mu, phi)
     reversibility_test(y_t_data[160000:162000])
     area_preservation_test(y_t_data[160000:162000])
