@@ -1,3 +1,5 @@
+# import numpy as np
+#
 # @njit
 # def _h_half_step(
 #         h_set_old: np.ndarray,
@@ -26,12 +28,10 @@
 # @njit
 # def _h_full_step(
 #         h_set_old: np.ndarray,
-#         p_set_old: np.ndarray,
+#         p_set_new: np.ndarray,
 #         dt: float
 # ) -> np.ndarray:
-#     return np.add(
-#         h_set_old, (dt/2.)*p_set_old
-#     )
+#     return np.add(h_set_old, (dt/2.)*p_set_new)
 #
 #
 # @njit
