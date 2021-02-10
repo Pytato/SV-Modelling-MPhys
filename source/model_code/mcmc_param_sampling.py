@@ -22,8 +22,8 @@ def var_eta_sample(
 @njit
 def mu_sample(
         h_set: np.ndarray,
-        var_eta: float,
-        phi: float
+        phi: float,
+        var_eta: float
 ) -> float:
     n = len(h_set)
     b_val = (1 - phi * phi) + (n - 1) * (1 - phi) * (1 - phi)
@@ -36,8 +36,8 @@ def mu_sample(
 @njit
 def __phi_2_sample_np(
         h_set: np.ndarray,
+        mu: float,
         var_eta: float,
-        mu: float
 ) -> float:
     d_val = -1 * ((h_set[0] - mu) ** 2) + np.sum(np.square(h_set[:-1] - mu))
 
@@ -83,9 +83,9 @@ def iter_samp_param(
 ) -> (float, float, float):
     """"""
 
-    new_phi = phi_sample(old_phi, old_h_set, old_var_eta, old_mu)
+    new_phi = phi_sample(old_phi, old_h_set, old_mu, old_var_eta)
     new_var_eta = var_eta_sample(old_h_set, old_phi, old_mu)
-    new_mu = mu_sample(old_h_set, old_var_eta, old_phi)
+    new_mu = mu_sample(old_h_set, old_phi, old_var_eta)
 
     return new_phi, new_mu, new_var_eta
 
