@@ -4,15 +4,15 @@ Sources:
     Physics Letters B, vol. 195, no. 2, pp. 216–222, Sep. 1987,
     doi: 10.1016/0370-2693(87)91197-X.
 
+todo:
+    - Write numba.jit implementation, requires rewriting to accept similarly
+    constructed force equation.
 """
-
-from source.model_code.hmc_sampling import dham_by_dh_i
 
 from typing import Callable
 
 import numpy as np
 from tqdm import tqdm
-from numba import njit
 
 
 def __p_step(
