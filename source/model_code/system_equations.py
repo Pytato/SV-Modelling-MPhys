@@ -40,7 +40,7 @@ def dham_by_dh_i(
     first_ele_kron_handler[0] = 1
     final_ele_kron_handler[-1] = 1
     one_arr = np.ones_like(first_ele_kron_handler)
-    dham_by_dh_i = np.add(
+    dham_by_dh_i_int = np.add(
         np.add(
             0.5 * (1. - np.multiply(np.square(y_set), np.exp(-1. * h_set))),
             first_ele_kron_handler * ((h_set[0] - mu)/(eta_var/(1.-(phi*phi))))
@@ -65,7 +65,7 @@ def dham_by_dh_i(
         )
     )
 
-    return dham_by_dh_i
+    return dham_by_dh_i_int
 
 
 # @njit
