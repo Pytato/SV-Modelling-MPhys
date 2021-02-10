@@ -52,10 +52,6 @@ def __phi_2_sample_np(
 
     return return_phi_val
 
-#
-# phi_samples = 0
-# phi_rejects = 0
-
 
 @njit
 def phi_sample(
