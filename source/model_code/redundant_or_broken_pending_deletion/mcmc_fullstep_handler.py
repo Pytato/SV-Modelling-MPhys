@@ -1,4 +1,4 @@
-from source.model_code import hmc_sampling, mcmc_param_sampling
+from source.model_code import system_equations, mcmc_param_sampling
 
 from numba import njit
 from typing import Optional
@@ -21,13 +21,13 @@ def _get_accepted_trajectory(
     while attempts_made < max_attempts:
         attempts_made += 1
         p_init = np.random.normal(0, 2, len(h_init))
-        h_candidate, p_candidate = hmc_sampling.integrate_trajectory(
+        h_candidate, p_candidate = system_equations.integrate_trajectory(
             h_init, p_init, trajectory_length, n_steps, y_series,
             phi_input, mu_input, var_eta_input
         )
-        hamiltonian_delta = hmc_sampling.hamiltonian(
+        hamiltonian_delta = system_equations.hamiltonian(
             h_candidate, p_candidate, y_series, phi_input, mu_input, var_eta_input
-        ) - hmc_sampling.hamiltonian(
+        ) - system_equations.hamiltonian(
             h_init, p_init, y_series, phi_input, mu_input, var_eta_input
         )
         # print(hamiltonian_delta)
