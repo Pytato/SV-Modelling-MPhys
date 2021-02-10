@@ -21,18 +21,22 @@ def reversibility_test(y_data_loc):
     x_traject_end_f, p_traject_end_f = leapfrog_2nd_order_integrator.full_trajectory_int(
         x_set_in,
         p_set_in,
-        system_equations.dham_by_dh_i,
         dt,
         N_STEPS,
-        y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT
+        y_data_loc,
+        PHI_INIT,
+        MU_INIT,
+        ETA_VAR_INIT
     )
     x_traject_end_a, p_traject_end_a = leapfrog_2nd_order_integrator.full_trajectory_int(
         x_set_in,
         p_set_in,
-        ideal_test_code.force,
         dt,
         N_STEPS,
-        y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT
+        y_data_loc,
+        PHI_INIT,
+        MU_INIT,
+        ETA_VAR_INIT
     )
 
     print(np.abs(np.subtract(x_traject_end_a, x_traject_end_f)))
@@ -46,10 +50,12 @@ def reversibility_test(y_data_loc):
     x_traject_start_f, p_traject_start_f = leapfrog_2nd_order_integrator.full_trajectory_int(
         x_traject_end_f,
         p_traject_end_f,
-        system_equations.dham_by_dh_i,
         dt,
         N_STEPS,
-        y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT
+        y_data_loc,
+        PHI_INIT,
+        MU_INIT,
+        ETA_VAR_INIT
     )
     x_traject_start_a, p_traject_start_a = leapfrog_2nd_order_integrator.full_trajectory_int(
         x_traject_end_a,
@@ -71,7 +77,7 @@ def area_preservation_test(y_data_loc):
     x_set_in = np.ones_like(y_data_loc) / 2.
     p_set_in = np.random.normal(0, 2, len(y_data_loc))
     TRAJ_LENGTH = 1
-    step_lengths = [1e-3, 2e-3, 3e-3, 4e-3, 5e-3]
+    step_lengths = [1e-4, 2e-3, 3e-3, 4e-3, 5e-3]
     n_steps = np.around(np.divide(TRAJ_LENGTH, step_lengths), decimals=0).astype(int)
     output_tuples = []
     for i in range(len(step_lengths)):
@@ -79,10 +85,12 @@ def area_preservation_test(y_data_loc):
             leapfrog_2nd_order_integrator.full_trajectory_int(
                 x_set_in,
                 p_set_in,
-                system_equations.dham_by_dh_i,
                 step_lengths[i],
                 n_steps[i],
-                y_data_loc, PHI_INIT, MU_INIT, ETA_VAR_INIT
+                y_data_loc,
+                PHI_INIT,
+                MU_INIT,
+                ETA_VAR_INIT
             )
         )
     step_squared_domain = np.square(step_lengths)
@@ -107,5 +115,5 @@ def area_preservation_test(y_data_loc):
 if __name__ == "__main__":
     eta_var, mu, phi = 0.05, -1.0, 0.97
     y_t_data, h_t_data = y_t_data_management.generate_test_y_t_data(eta_var, mu, phi)
-    reversibility_test(y_t_data[160000:162000])
+    # reversibility_test(y_t_data[160000:162000])
     area_preservation_test(y_t_data[160000:162000])
