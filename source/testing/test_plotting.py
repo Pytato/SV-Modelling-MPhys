@@ -27,10 +27,11 @@ def test_dists_arb():
     A_VAL = 20.0
     B_VAL = 2.0
     C_VAL = 5.0
-    D_VAL = 1
-    E_VAL = 0.5
+    D_VAL = 2
+    E_VAL = 1.5
     N_VAL = 100
-    VAR_ETA_VAL = 0.5
+    VAR_ETA_VAL_MU = 0.5
+    VAR_ETA_VAL_PHI = 0.1
 
     eta_var_set = [0.5]
     mu_set = [0.1]
@@ -39,26 +40,31 @@ def test_dists_arb():
     sample_count = 10000000
 
     for i in tqdm(range(sample_count)):
-        phi_set.append(arb_dist_model.phi_sample(phi_set[-1], D_VAL, E_VAL, VAR_ETA_VAL))
-    make_standard_hist(phi_set[5000:], "phi_sample_dist_plot_arb",
+        phi_set.append(arb_dist_model.phi_sample(phi_set[-1], D_VAL, E_VAL, VAR_ETA_VAL_PHI))
+    make_standard_hist(phi_set[10000:], "phi_sample_dist_plot_arb_new",
                        title=r"$\varphi$ Sample Distribution", n_bins=100,
-                       x_lab=r"$\varphi$", y_lab="Normalised Frequency")  # ,
-    # over_plot_data=[standard_gaussian(phi_set[1000:])])
+                       x_lab=r"$\varphi$", y_lab="Normalised Frequency",
+                       over_plot_data=[[
+                           np.linspace(min(phi_set), max(phi_set), num=400),
+                           phi_analytic_func(np.linspace(min(phi_set), max(phi_set), num=400), D_VAL,
+                                             E_VAL, VAR_ETA_VAL_PHI),
+                           "Analytic Phi Distribution"
+                       ]])
 
     for i in tqdm(range(sample_count)):
-        mu_set.append(arb_dist_model.mu_sample(B_VAL, C_VAL, VAR_ETA_VAL))
-    make_standard_hist(mu_set[5000:], "mu_sample_dist_plot_arb", title=r"$\mu$ Sample Distribution",
+        mu_set.append(arb_dist_model.mu_sample(B_VAL, C_VAL, VAR_ETA_VAL_MU))
+    make_standard_hist(mu_set[10000:], "mu_sample_dist_plot_arb", title=r"$\mu$ Sample Distribution",
                        n_bins=100,
                        x_lab=r"$\mu$", y_lab="Normalised Frequency",
-                       over_plot_data=[standard_gaussian(mu_set[1000:])])
+                       over_plot_data=[standard_gaussian(mu_set[10000:])])
 
-    for i in tqdm(range(1000000)):
+    for i in tqdm(range(4000000)):
         eta_var_set.append(arb_dist_model.eta_var_sample(A_VAL, N_VAL))
-    make_standard_hist(eta_var_set[5000:], "eta_var_sample_dist_plot_arb",
+    make_standard_hist(eta_var_set[10000:], "eta_var_sample_dist_plot_arb",
                        title=r"$\sigma^2_\eta$ Sample Distribution", n_bins=100,
                        x_lab=r"$\sigma^2_\eta$",
                        y_lab="Normalised Frequency",
-                       over_plot_data=[inv_gamma_fit(eta_var_set[100:])])
+                       over_plot_data=[inv_gamma_fit(eta_var_set[10000:])])
 
 
 def test_eta_var_inv_gamma():
@@ -119,7 +125,7 @@ def make_standard_hist(
             ax.plot(overplot_domain, overplot_vals, linewidth=0.5)  # , label=name)
         ax.legend()
     ax.set(xlabel=x_lab, ylabel=y_lab)
-    fig.suptitle(title)
+    # fig.suptitle(title)
     fig.savefig(f"./plotout/{plot_name_no_ext}.pdf")
     fig.savefig(f"./plotout/{plot_name_no_ext}.png", dpi=300)
 
@@ -135,6 +141,20 @@ def standard_gaussian(
     return [domain, np.exp(-np.square(domain - data_set_mean) / (2 * data_set_var)) / np.sqrt(
         2 * np.pi * data_set_var),
             f"Fitted Gaussian: \n$\\mu={data_set_mean:.4}$, $\\sigma^2={data_set_var:.2}$"]
+
+
+def phi_analytic_func(
+        phi: np.ndarray,
+        d_val: float,
+        e_val: float,
+        eta_var: float
+) -> np.ndarray:
+    pre_norm_ret_set = np.multiply(
+        np.sqrt(1 - np.square(phi)),
+        np.exp(-(d_val/(2*eta_var))*np.square(phi - (e_val/d_val)))
+    )
+    norm_const = np.sum(pre_norm_ret_set * (np.ptp(phi)/len(phi)))
+    return pre_norm_ret_set/norm_const
 
 
 def inv_gamma_fit(

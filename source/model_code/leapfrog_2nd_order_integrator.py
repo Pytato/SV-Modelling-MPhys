@@ -6,9 +6,12 @@ Sources:
 
 """
 
+from source.model_code.hmc_sampling import dham_by_dh_i
+
 from typing import Callable
 
 import numpy as np
+from tqdm import tqdm
 from numba import njit
 
 
@@ -47,7 +50,7 @@ def full_trajectory_int(
     """Integrates a full trajectory by 2nd order leapfrog, preserves
     volume and is reversible.
 
-    Based on [1].
+    [1]
     """
 
     # Initial half step in p to align the integrator correctly
@@ -56,7 +59,7 @@ def full_trajectory_int(
     x_curr = __x_step(p_curr, x_initial, dt)
 
     # Loop for n-1 full steps
-    for i in range(n_steps-1):
+    for i in tqdm(range(n_steps-1)):
         p_curr = __p_step(p_curr, x_curr, force_func, dt, *force_args)
         x_curr = __x_step(p_curr, x_curr, dt)
 

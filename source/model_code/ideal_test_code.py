@@ -3,7 +3,8 @@ import numpy as np
 
 def force(h, yin, phi, mu, sigma_eta):
     """
-    Compute the force term: pdot_i = - dH/dh_i.
+    Compute the force term: - pdot_i = dH/dh_i.
+    Returns negative to behave nicely in integrator??!?!??!
 
     :param h:
     :param yin:
@@ -24,7 +25,7 @@ def force(h, yin, phi, mu, sigma_eta):
                                                           (-mu - phi * (-mu + h[i]) + h[ip])) / sigma_eta ** 2
     res[-1] = 0.5 * (1. - yin[-1] ** 2 * np.exp(-h[-1])) + (-mu - phi * (-mu + h[-2]) + h[-1]) / sigma_eta ** 2
 
-    return -res
+    return res
 
 
 def H(h, p, yin, phi, mu, sigma_eta):

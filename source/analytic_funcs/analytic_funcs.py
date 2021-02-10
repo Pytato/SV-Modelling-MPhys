@@ -35,7 +35,7 @@ def expectation_val_h_t(t: Union[int, np.ndarray, List], h_1, mu, phi):
     :param phi: Fixed model parameter
     :type phi: float
     """
-    return mu + np.multiply(np.power(phi, np.subtract(t, 1)), (h_1 - mu))
+    return mu * (1 - np.power(phi, t))
 
 
 @njit
@@ -50,7 +50,7 @@ def variance_h_t(t: Union[int, np.ndarray, List], eta_variance, phi):
     :type phi: float
     """
 
-    return eta_variance * (1.0 - np.power(phi, np.multiply(2, t) - 4)) / (1 - phi*phi)
+    return eta_variance * (1.0 - np.power(phi, np.multiply(2, t))) / (1 - phi*phi)
 
 
 if __name__ == "__main__":

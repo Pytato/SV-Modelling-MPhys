@@ -12,19 +12,19 @@ def hamiltonian(
         eta_var: float
 ) -> float:
 
-    ham_first_ele = 1/2 * np.sum(np.square(p_set))
-    ham_second_ele = 1/2 * np.sum(np.add(h_set, np.multiply(np.square(y_set), np.exp(-1 * h_set))))
-    ham_third_ele = ((h_set[0] - mu)**2)/(2*eta_var/(1 - phi*phi))
-    ham_fourth_ele = (1/(2.*eta_var))*np.sum(
+    ham_first_ele = np.sum(np.square(p_set))
+    ham_second_ele = np.sum(np.add(h_set, np.multiply(np.square(y_set), np.exp(-1. * h_set))))
+    ham_third_ele = ((h_set[0] - mu)**2)/(eta_var/(1. - phi*phi))
+    ham_fourth_ele = (1./eta_var)*np.sum(
         np.square(
             np.add(h_set[1:] - mu, -phi*(h_set[:-1] - mu))
         )
     )
-    return ham_first_ele + ham_second_ele + ham_third_ele + ham_fourth_ele
+    return 0.5 * (ham_first_ele + ham_second_ele + ham_third_ele + ham_fourth_ele)
 
 
 @njit
-def _dham_by_dh_i(
+def dham_by_dh_i(
         h_set: np.ndarray,
         y_set: np.ndarray,
         phi: float,
@@ -52,14 +52,14 @@ def _dham_by_dh_i(
                         h_set - mu,
                         -phi*(h_set_extended[0:-2] - mu)
                     ),
-                    one_arr - first_ele_kron_handler
+                    np.subtract(one_arr, first_ele_kron_handler)
                 ),
                 np.multiply(
                     -phi*np.add(
                         h_set_extended[2:] - mu,
                         -phi*(h_set - mu)
                     ),
-                    one_arr - final_ele_kron_handler
+                    np.subtract(one_arr, final_ele_kron_handler)
                 )
             )
         )
@@ -79,35 +79,29 @@ def _h_half_step(
 
 @njit
 def _p_full_step(
-        p_set_old: np.ndarray,
         h_set_old: np.ndarray,
+        p_set_old: np.ndarray,
         dt: float,
         y_set: np.ndarray,
         phi: float,
         mu: float,
         eta_var: float
 ) -> np.ndarray:
-    return np.subtract(
+    return np.add(
         p_set_old,
-        dt * _dham_by_dh_i(h_set_old, y_set, phi, mu, eta_var)
+        dt * dham_by_dh_i(h_set_old, y_set, phi, mu, eta_var)
     )
 
 
 @njit
-def _integration_full_step(
+def _h_full_step(
         h_set_old: np.ndarray,
         p_set_old: np.ndarray,
-        dt: float,
-        y_set: np.ndarray,
-        phi: float,
-        mu: float,
-        eta_var: float
-) -> [np.ndarray, np.ndarray]:
-    p_full_step_set = _p_full_step(p_set_old, h_set_old, dt, y_set, phi, mu, eta_var)
-    return [np.add(
-        _h_half_step(h_set_old, p_set_old, dt),
-        (dt / 2) * p_full_step_set
-    ), p_full_step_set]
+        dt: float
+) -> np.ndarray:
+    return np.add(
+        h_set_old, (dt/2.)*p_set_old
+    )
 
 
 @njit
@@ -124,17 +118,17 @@ def integrate_trajectory(
 
     dt = integration_length/n_steps
 
-    h_set, p_set = h_initial, p_initial
+    # Initial half step update to h
+    h_set = _h_half_step(h_initial, p_initial, dt)
 
-    for i in range(n_steps):
-        h_set, p_set = _integration_full_step(
-            h_set,
-            p_set,
-            dt,
-            y_set,
-            phi_initial,
-            mu_initial,
-            var_eta_initial
-        )
+    # Initial full-step of p to line everything up
+    p_set = _p_full_step(h_set, p_initial, dt, y_set, phi_initial, mu_initial, var_eta_initial)
+
+    for i in range(n_steps-1):
+        h_set = _h_full_step(h_set, p_set, dt)
+        p_set = _p_full_step(h_set, p_set, dt, y_set, phi_initial, mu_initial, var_eta_initial)
+
+    # Final half step to update h
+    h_set = _h_half_step(h_set, p_set, dt)
 
     return [h_set, p_set]
