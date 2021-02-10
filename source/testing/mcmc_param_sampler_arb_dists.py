@@ -51,7 +51,6 @@ def phi_sample(
     if mh_uniform_test_val <= accept_prob:
         return phi_candidate
     else:
-        # phi_rejects += 1
         return old_phi
 
 

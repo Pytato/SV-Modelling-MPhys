@@ -57,17 +57,13 @@ def __phi_2_sample_np(
 def phi_sample(
         old_phi: float,
         h_set: np.ndarray,
-        var_eta: float,
-        mu: float
+        mu: float,
+        var_eta: float
 ) -> float:
     """Generates a new value of phi with the metropolis hastings algorithm,
         either rejecting and passing the old phi value or accepting and
         returning the new value.
     """
-    # global phi_rejects
-    # global phi_samples
-
-    # phi_samples += 1
 
     phi_candidate = __phi_2_sample_np(h_set, var_eta, mu)
     accept_prob = min(math.sqrt((1 - phi_candidate * phi_candidate) / (1 - old_phi * old_phi)), 1)
@@ -76,7 +72,6 @@ def phi_sample(
     if mh_uniform_test_val < accept_prob:
         return phi_candidate
     else:
-        # phi_rejects += 1
         return old_phi
 
 
