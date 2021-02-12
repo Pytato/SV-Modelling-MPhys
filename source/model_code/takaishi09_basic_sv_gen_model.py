@@ -84,18 +84,18 @@ def gen_h_t_set(h_initial, mu, phi, eta_t_set):
 
 
 @njit
-def gen_y_t_vals(eta_variance, mu, phi, num_steps_to_gen=1000):
+def gen_y_t_vals(phi, mu, eta_variance, num_steps_to_gen=1000):
     """Generates set of `num_steps_to_gen` length time series data
             representing the pricing of a stock option
 
-    :param eta_variance: Initial volatility internal random variance, used
-    to inform the model's volatility generation method.
-    :type eta_variance: float
-    :param mu: Fixed parameter across model
-    :type mu: float
     :param phi: Fixed parameter, represents level of auto-correlation of the option pricing,
     i.e. how closely related volatility is to previous values of volatility
     :type phi: float
+    :param mu: Fixed parameter across model
+    :type mu: float
+    :param eta_variance: Initial volatility internal random variance, used
+    to inform the model's volatility generation method.
+    :type eta_variance: float
     :param num_steps_to_gen: Number of time steps to generate
     :type num_steps_to_gen: int
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     print(gen_eta_t_values(0.05, n_to_gen=100))
 
     print("Test _gen_t_t_vals")
-    y_t_val_test = gen_y_t_vals(1.0, 0.05, -1.0, 0.97, num_steps_to_gen=5000)
+    y_t_val_test = gen_y_t_vals(0.97, -1.0, 0.05, num_steps_to_gen=5000)
     fig, ax = plt.subplots()
     ax.plot(y_t_val_test)
     fig.show()
