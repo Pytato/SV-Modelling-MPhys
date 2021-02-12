@@ -35,7 +35,7 @@ analytic_h_t_expec_value = analytic_funcs.expectation_val_h_t(t_set, TRIAL_VALUE
 
 
 _, h_t_data = takaishi09_basic_sv_gen_model.gen_y_t_vals(
-    TRIAL_VALUES["eta_variance"], TRIAL_VALUES["mu"], TRIAL_VALUES["phi"], num_steps_to_gen=TRIAL_VALUES["max_t"]
+    TRIAL_VALUES["phi"], TRIAL_VALUES["mu"], TRIAL_VALUES["eta_variance"], num_steps_to_gen=TRIAL_VALUES["max_t"]
 )
 
 g_mean_h_t = []
