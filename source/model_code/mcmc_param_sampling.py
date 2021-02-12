@@ -65,7 +65,7 @@ def phi_sample(
         returning the new value.
     """
 
-    phi_candidate = __phi_2_sample_np(h_set, var_eta, mu)
+    phi_candidate = __phi_2_sample_np(h_set, mu, var_eta)
     accept_prob = min(math.sqrt((1 - phi_candidate * phi_candidate) / (1 - old_phi * old_phi)), 1)
     mh_uniform_test_val = np.random.uniform(0.0, 1.0)
 
