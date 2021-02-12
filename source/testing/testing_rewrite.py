@@ -1,12 +1,15 @@
 from source.model_code import leapfrog_2nd_order_integrator
 from source.model_code import system_equations
 from source.model_code import ideal_test_code
+from source.model_code import hmc_sampler
+from source.model_code import mcmc_param_sampling
 from source.utility_code.testing_utils import y_t_data_management
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 from scipy import stats as scistats
+from tqdm import tqdm
 
 plt.style.use(["science", "ieee"])
 
@@ -112,8 +115,58 @@ def area_preservation_test(y_data_loc):
     fig.savefig("./less_saturated_plotout/eps_squared_plot.pdf")
 
 
+def hmc_sampler_test(
+        y_data: np.ndarray,
+        phi_init: float,
+        mu_init: float,
+        eta_var_init: float,
+        n_samples: int,
+        hmc_int_step_count: int
+):
+    h_vect = np.random.normal(0., 1., len(y_data))
+    phi_loc, mu_loc, eta_var_loc = phi_init, mu_init, eta_var_init
+    attempts_list = []
+    history = []
+    for i in tqdm(range(n_samples)):
+        h_vect, attempts = hmc_sampler.get_new_h_vector(
+            h_vect,
+            y_data,
+            phi_loc, mu_loc, eta_var_loc,
+            hmc_int_step_count
+        )
+        attempts_list.append(attempts)
+        phi_loc, mu_loc, eta_var_loc = mcmc_param_sampling.iter_samp_param(
+            h_vect,
+            phi_loc, mu_loc, eta_var_loc
+        )
+        history.append((phi_loc, mu_loc, eta_var_loc))
+
+    phi_history, mu_history, eta_var_history = [], [], []
+    for phi_val, mu_val, eta_var_val in tqdm(history):
+        phi_history.append(phi_val)
+        mu_history.append(mu_val)
+        eta_var_history.append(eta_var_val)
+    print(np.mean(phi_history[10000:]), np.mean(mu_history[10000:]),
+          np.mean(eta_var_history[10000:]))
+    print(np.average(attempts_list[10000:]))
+    fig, ax = plt.subplots()
+    history_t = np.add(range(n_samples), 1)
+    ax.plot(history_t[100000:150000], attempts_list[100000:150000])
+    fig.savefig("./less_saturated_plotout/attempts_plot.pdf")
+    fig, ax = plt.subplots()
+    ax.plot(history_t[10000:], phi_history[10000:])
+    fig.savefig("./less_saturated_plotout/phi_history.pdf")
+    fig, ax = plt.subplots()
+    ax.plot(history_t[10000:], mu_history[10000:])
+    fig.savefig("./less_saturated_plotout/mu_history.pdf")
+    fig, ax = plt.subplots()
+    ax.plot(history_t[10000:], eta_var_history[10000:])
+    fig.savefig("./less_saturated_plotout/eta_var_history.pdf")
+
+
 if __name__ == "__main__":
     eta_var, mu, phi = 0.05, -1.0, 0.97
-    y_t_data, h_t_data = y_t_data_management.generate_test_y_t_data(eta_var, mu, phi)
+    y_t_data, h_t_data = y_t_data_management.generate_test_y_t_data(phi, mu, eta_var)
     # reversibility_test(y_t_data[160000:162000])
-    area_preservation_test(y_t_data[160000:162000])
+    # area_preservation_test(y_t_data[160000:162000])
+    hmc_sampler_test(y_t_data[180000:182000], 0.5, 0., 1., 200000, 24)
