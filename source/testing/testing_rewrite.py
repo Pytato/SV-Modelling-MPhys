@@ -169,4 +169,4 @@ if __name__ == "__main__":
     y_t_data, h_t_data = y_t_data_management.generate_test_y_t_data(phi, mu, eta_var)
     # reversibility_test(y_t_data[160000:162000])
     # area_preservation_test(y_t_data[160000:162000])
-    hmc_sampler_test(y_t_data[180000:182000], 0.5, 0., 1., 200000, 24)
+    hmc_sampler_test(y_t_data[180000:182000], 0.5, 0., 1., 200000, 30)
