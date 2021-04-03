@@ -13,6 +13,14 @@ def eta_var_sample(
 
 
 @njit
+def njit_eta_var_sample(
+        a_val: float,
+        n_val: int
+) -> float:
+    return 1./np.random.gamma(n_val/2., 1./a_val)
+
+
+@njit
 def mu_sample(
         b_val: float,
         c_val: float,
