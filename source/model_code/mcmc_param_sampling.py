@@ -1,10 +1,10 @@
 from numba import njit
 
 import numpy as np
-from scipy import stats as scistats
 import math
 
 
+@njit
 def var_eta_sample(
         h_set: np.ndarray,
         phi: float,
@@ -16,7 +16,8 @@ def var_eta_sample(
             np.sum(np.square(h_set[1:] - mu - phi * (h_set[:-1] - mu)))
     )
 
-    return scistats.invgamma.rvs(n_val / 2.0, size=1)[0] * a_val
+    # return scistats.invgamma.rvs(n_val / 2.0, size=1)[0] * a_val
+    return 1./np.random.gamma(n_val/2., 1./a_val)
 
 
 @njit
@@ -75,6 +76,7 @@ def phi_sample(
         return old_phi
 
 
+@njit
 def iter_samp_param(
         old_h_set: np.ndarray,
         old_phi: float,
